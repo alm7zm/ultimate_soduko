@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="description"
+    content="A beautiful, modern Sudoku puzzle game with PvP battles, leagues, XP progression, daily quests, cosmetic themes, and a stunning dark-mode interface.">
+  <title>Sudoku — Puzzle Game</title>
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <div id="app" class="app-container">
+    <!-- ═══════════ MAIN MENU ═══════════ -->
+    <div id="screen-menu" class="screen main-screen active">
+      <!-- Video Background -->
+      <video autoplay loop muted playsinline class="main-screen-video-bg">
+        <source src="img/upscaled-video.mp4" type="video/mp4">
+      </video>
+
+      <div class="main-overlay"></div>
+      <!-- Top Bar -->
+      <div class="main-topbar">
+        <div class="main-logo">SUDOKU</div>
+        <div class="main-player-bar">
+          <div class="main-player-stat"><span class="main-stat-icon">🔥</span><span class="main-stat-val"
+              id="menu-streak">0</span></div>
+          <div class="main-player-stat"><span class="main-stat-icon">🪙</span><span class="main-stat-val"
+              id="menu-coins">0</span></div>
+          <div class="main-player-badge" id="menu-league-icon">🥉</div>
+          <div class="main-player-card">
+            <span class="main-player-name">Player</span>
+            <span class="main-player-level">Lv <span id="menu-level">0</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Left-aligned Vertical Menu -->
+      <div class="main-menu">
+        <div class="main-menu-primary">
+          <div class="main-menu-item main-big" id="main-play-toggle">
+            <span class="main-menu-text">PLAY</span>
+            <span class="main-menu-arrow" id="main-play-arrow">›</span>
+          </div>
+          <div class="main-submenu" id="main-difficulty-submenu">
+            <button class="main-sub-btn diff-btn" data-difficulty="easy" id="btn-diff-easy">EASY</button>
+            <button class="main-sub-btn diff-btn" data-difficulty="medium" id="btn-diff-medium">MEDIUM</button>
+            <button class="main-sub-btn diff-btn" data-difficulty="hard" id="btn-diff-hard">HARD</button>
+            <button class="main-sub-btn diff-btn" data-difficulty="expert" id="btn-diff-expert">EXPERT</button>
+            <button class="main-sub-btn diff-btn" data-difficulty="evil" id="btn-diff-evil">EVIL</button>
+          </div>
+          <button class="main-menu-item main-big" data-nav="battle" id="main-nav-battle">
+            <span class="main-menu-text">BATTLE</span>
+          </button>
+          <button class="main-menu-item main-big" data-nav="shop" id="main-nav-shop">
+            <span class="main-menu-text">SHOP</span>
+          </button>
+          <button class="main-menu-item main-big" data-nav="profile" id="main-nav-profile">
+            <span class="main-menu-text">PROFILE</span>
+          </button>
+        </div>
+        <div class="main-menu-secondary">
+          <button class="main-menu-item main-small" id="btn-open-settings">
+            <span class="main-menu-text">SETTINGS</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ GAME SCREEN ═══════════ -->
+    <div id="screen-game" class="screen">
+      <div class="game-header">
+        <div class="game-info">
+          <div class="info-item"><span class="info-label">Difficulty</span><span class="info-value"
+              id="current-difficulty">Medium</span></div>
+          <div class="info-item"><span class="info-label">Mistakes</span><span class="info-value"
+              id="mistakes">0/3</span></div>
+          <div class="info-item"><span class="info-label">Time</span><span class="info-value" id="timer">00:00</span>
+          </div>
+          <div class="info-item"><span class="info-label">Hints</span><span class="info-value" id="hints-count">3</span>
+          </div>
+        </div>
+        <div class="game-actions">
+          <button class="icon-btn" id="btn-pause" title="Pause">⏸</button>
+          <button class="icon-btn" id="btn-new-game" title="New Game">✦</button>
+        </div>
+      </div>
+      <div id="board"></div>
+      <div class="tools-bar">
+        <button class="tool-btn" id="btn-undo"><span class="tool-icon">↩</span>Undo</button>
+        <button class="tool-btn" id="btn-redo"><span class="tool-icon">↪</span>Redo</button>
+        <button class="tool-btn" id="btn-erase"><span class="tool-icon">⌫</span>Erase</button>
+        <button class="tool-btn" id="btn-notes"><span class="tool-icon">✏</span>Notes</button>
+        <button class="tool-btn" id="btn-hint"><span class="tool-icon">💡</span>Hint</button>
+      </div>
+      <div id="numpad">
+        <button class="num-btn" data-num="1">1</button><button class="num-btn" data-num="2">2</button><button
+          class="num-btn" data-num="3">3</button>
+        <button class="num-btn" data-num="4">4</button><button class="num-btn" data-num="5">5</button><button
+          class="num-btn" data-num="6">6</button>
+        <button class="num-btn" data-num="7">7</button><button class="num-btn" data-num="8">8</button><button
+          class="num-btn" data-num="9">9</button>
+      </div>
+    </div>
+
+    <!-- ═══════════ BATTLE SCREEN ═══════════ -->
+    <div id="screen-battle" class="screen">
+      <div class="battle-header-bar">
+        <h2 class="screen-title">⚔️ PvP Battle</h2>
+        <div class="league-display">
+          <span id="battle-league-icon" class="league-icon">🥉</span>
+          <div class="league-info-mini">
+            <span id="battle-league-name" class="league-name-text">Bronze</span>
+            <span id="battle-elo" class="elo-text">1000</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PvP Record -->
+      <div class="pvp-record-bar">
+        <div class="pvp-record-item"><span class="pvp-record-val" id="pvp-wins">0</span><span
+            class="pvp-record-label">Wins</span></div>
+        <div class="pvp-record-item"><span class="pvp-record-val" id="pvp-losses">0</span><span
+            class="pvp-record-label">Losses</span></div>
+        <div class="pvp-record-item"><span class="pvp-record-val" id="pvp-draws">0</span><span
+            class="pvp-record-label">Draws</span></div>
+      </div>
+
+      <!-- Difficulty selection for battle -->
+      <div class="battle-diff-section">
+        <h3 class="section-title">Select Battle Difficulty</h3>
+        <div class="battle-diff-grid">
+          <button class="battle-diff-btn" data-diff="easy">Easy</button>
+          <button class="battle-diff-btn" data-diff="medium">Medium</button>
+          <button class="battle-diff-btn" data-diff="hard">Hard</button>
+          <button class="battle-diff-btn" data-diff="expert">Expert</button>
+        </div>
+      </div>
+
+      <!-- Match History -->
+      <div class="profile-section">
+        <h3 class="section-title">Match History</h3>
+        <div id="match-history-list" class="match-history-list">
+          <p class="empty-state">No matches yet. Start a battle!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ BATTLE ACTIVE SCREEN ═══════════ -->
+    <div id="screen-battle-active" class="screen">
+      <!-- Countdown & Opponent Info -->
+      <div class="battle-active-header">
+        <div class="battle-player-info">
+          <span class="battle-player-label">
+            You
+            <span class="ai-hints-badge" title="Hints stored by you" id="player-hints-badge" style="display:none;">💡
+              <span id="player-hints-badge-count">0</span></span>
+          </span>
+          <div class="battle-progress-bar">
+            <div class="battle-progress-fill" id="player-progress" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="battle-timer-container">
+          <span class="battle-timer" id="battle-timer">10:00</span>
+          <div class="battle-mistakes" id="battle-mistakes">0/3</div>
+        </div>
+        <div class="battle-player-info ai-info">
+          <span class="battle-player-label">
+            <span id="ai-avatar">AI</span> <span id="ai-name">Opponent</span>
+            <span class="ai-hints-badge" title="Hints stored by opponent" id="ai-hints-badge" style="display:none;">💡
+              <span id="ai-hints-count">0</span></span>
+          </span>
+          <button class="emote-mute-btn" id="btn-emote-mute" title="Mute opponent emotes">🔔</button>
+          <div class="battle-progress-bar">
+            <div class="battle-progress-fill ai-fill" id="ai-progress" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Battle Board -->
+      <div id="battle-board" class="battle-board"></div>
+
+      <!-- Battle Tools (simplified) -->
+      <div class="tools-bar">
+        <button class="tool-btn" id="btn-battle-hint"><span class="tool-icon">💡</span>Hint <span
+            id="battle-hints-count">0</span></button>
+        <button class="tool-btn" id="btn-battle-erase"><span class="tool-icon">⌫</span>Erase</button>
+        <button class="tool-btn" id="btn-battle-emote"><span class="tool-icon">💬</span>Emote</button>
+        <button class="tool-btn" id="btn-battle-quit"><span class="tool-icon">🏳️</span>Quit</button>
+      </div>
+
+      <!-- Emote Picker Panel -->
+      <div id="emote-picker" class="emote-picker">
+        <div class="emote-picker-header">
+          <span>Emotes</span>
+          <button class="emote-picker-close" id="emote-picker-close">✕</button>
+        </div>
+        <div class="emote-picker-grid" id="emote-picker-grid"></div>
+        <div class="emote-cooldown-bar" id="emote-cooldown-bar"></div>
+      </div>
+
+      <!-- Floating Emote Bubbles -->
+      <div id="emote-display" class="emote-display"></div>
+
+      <!-- Battle NumPad -->
+      <div id="battle-numpad" class="battle-numpad">
+        <button class="num-btn" data-bnum="1">1</button><button class="num-btn" data-bnum="2">2</button><button
+          class="num-btn" data-bnum="3">3</button>
+        <button class="num-btn" data-bnum="4">4</button><button class="num-btn" data-bnum="5">5</button><button
+          class="num-btn" data-bnum="6">6</button>
+        <button class="num-btn" data-bnum="7">7</button><button class="num-btn" data-bnum="8">8</button><button
+          class="num-btn" data-bnum="9">9</button>
+      </div>
+    </div>
+
+    <!-- ═══════════ SHOP SCREEN ═══════════ -->
+    <div id="screen-shop" class="screen">
+      <div class="screen-header">
+        <h2 class="screen-title">Theme Shop</h2>
+        <div class="coins-display"><span class="coins-icon">🪙</span><span class="coins-amount" id="shop-coins">0</span>
+        </div>
+      </div>
+      <div id="theme-grid" class="theme-grid"></div>
+    </div>
+
+    <!-- ═══════════ BATTLE PASS SCREEN ═══════════ -->
+    <div id="screen-battlepass" class="screen">
+      <div class="screen-header">
+        <h2 class="screen-title">Battle Pass</h2>
+        <div class="bp-season-badge">Season <span id="bp-season">1</span></div>
+      </div>
+
+      <!-- BP Progress -->
+      <div class="bp-progress-card">
+        <div class="bp-tier-display">
+          <span class="bp-tier-label">TIER</span>
+          <span class="bp-tier-number" id="bp-tier">0</span>
+          <span class="bp-tier-max">/ 100</span>
+        </div>
+        <div class="bp-xp-bar">
+          <div class="bp-xp-fill" id="bp-xp-fill" style="width:0%"></div>
+        </div>
+        <div class="bp-xp-text" id="bp-xp-text">0 / 100 XP</div>
+      </div>
+
+      <!-- Missions -->
+      <div class="bp-missions">
+        <h3 class="bp-section-title">Daily Missions</h3>
+        <div id="bp-daily-missions" class="bp-mission-list"></div>
+        <h3 class="bp-section-title">Weekly Missions</h3>
+        <div id="bp-weekly-missions" class="bp-mission-list"></div>
+      </div>
+
+      <!-- Tier Rewards Grid -->
+      <h3 class="bp-section-title">Rewards</h3>
+      <div id="bp-tier-grid" class="bp-tier-grid"></div>
+    </div>
+
+    <!-- ═══════════ PROFILE SCREEN ═══════════ -->
+    <div id="screen-profile" class="screen">
+      <div class="screen-header">
+        <h2 class="screen-title">Profile</h2>
+      </div>
+      <div class="profile-card level-card">
+        <div class="level-badge" id="profile-level-badge">0</div>
+        <div class="level-info">
+          <div class="level-title">Level <span id="profile-level">0</span></div>
+          <div class="xp-bar-container">
+            <div class="xp-bar" id="profile-xp-bar" style="width: 0%"></div>
+          </div>
+          <div class="xp-text" id="profile-xp-text">0 / 100 XP</div>
+        </div>
+      </div>
+      <!-- League Badge -->
+      <div class="profile-card league-profile-card">
+        <span class="league-badge-big" id="profile-league-icon">🥉</span>
+        <div class="league-profile-info">
+          <div class="league-profile-name" id="profile-league-name">Bronze</div>
+          <div class="league-profile-elo">ELO: <span id="profile-elo">1000</span></div>
+          <div class="league-profile-record"><span id="profile-pvp-wins">0</span>W · <span
+              id="profile-pvp-losses">0</span>L · <span id="profile-pvp-draws">0</span>D</div>
+        </div>
+      </div>
+      <div class="profile-card streak-card">
+        <div class="streak-fire" id="profile-streak-fire">🔥</div>
+        <div class="streak-info">
+          <div class="streak-count" id="profile-streak-count">0</div>
+          <div class="streak-label">Day Streak</div>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <h3 class="section-title">Statistics</h3>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-value" id="stat-games-played">0</div>
+            <div class="stat-card-label">Games Played</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value" id="stat-games-won">0</div>
+            <div class="stat-card-label">Games Won</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value" id="stat-win-rate">0%</div>
+            <div class="stat-card-label">Win Rate</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value" id="stat-coins">0</div>
+            <div class="stat-card-label">Total Coins</div>
+          </div>
+        </div>
+      </div>
+      <div class="profile-section">
+        <h3 class="section-title">Best Times</h3>
+        <div class="best-times-grid" id="best-times-grid"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════ SETTINGS SCREEN ═══════════ -->
+    <div id="screen-settings" class="screen">
+      <div class="screen-header">
+        <h2 class="screen-title">⚙️ Settings</h2>
+        <button class="icon-btn" id="btn-settings-back" title="Back">✕</button>
+      </div>
+
+      <div class="settings-group">
+        <h3 class="section-title">Gameplay</h3>
+        <div class="settings-list">
+          <label class="setting-row" for="setting-highlight-same">
+            <div class="setting-info">
+              <span class="setting-name">Highlight Same Numbers</span>
+              <span class="setting-desc">Highlight all cells with the same number as selected</span>
+            </div>
+            <input type="checkbox" id="setting-highlight-same" class="setting-toggle" checked>
+          </label>
+          <label class="setting-row" for="setting-highlight-related">
+            <div class="setting-info">
+              <span class="setting-name">Highlight Related Cells</span>
+              <span class="setting-desc">Highlight row, column, and box of selected cell</span>
+            </div>
+            <input type="checkbox" id="setting-highlight-related" class="setting-toggle" checked>
+          </label>
+          <label class="setting-row" for="setting-auto-notes">
+            <div class="setting-info">
+              <span class="setting-name">Auto-Remove Notes</span>
+              <span class="setting-desc">Automatically clear notes when placing a number</span>
+            </div>
+            <input type="checkbox" id="setting-auto-notes" class="setting-toggle" checked>
+          </label>
+          <label class="setting-row" for="setting-show-timer">
+            <div class="setting-info">
+              <span class="setting-name">Show Timer</span>
+              <span class="setting-desc">Display the elapsed time during gameplay</span>
+            </div>
+            <input type="checkbox" id="setting-show-timer" class="setting-toggle" checked>
+          </label>
+          <label class="setting-row" for="setting-show-mistakes">
+            <div class="setting-info">
+              <span class="setting-name">Show Mistakes Counter</span>
+              <span class="setting-desc">Display mistakes remaining during gameplay</span>
+            </div>
+            <input type="checkbox" id="setting-show-mistakes" class="setting-toggle" checked>
+          </label>
+          <label class="setting-row" for="setting-error-check">
+            <div class="setting-info">
+              <span class="setting-name">Instant Error Check</span>
+              <span class="setting-desc">Immediately show if a placed number is wrong</span>
+            </div>
+            <input type="checkbox" id="setting-error-check" class="setting-toggle" checked>
+          </label>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <h3 class="section-title">Audio</h3>
+        <div class="settings-list">
+          <label class="setting-row" for="setting-sound-effects">
+            <div class="setting-info">
+              <span class="setting-name">Sound Effects</span>
+              <span class="setting-desc">Play sounds for interactions, wins, and errors</span>
+            </div>
+            <input type="checkbox" id="setting-sound-effects" class="setting-toggle" checked>
+          </label>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <h3 class="section-title">Danger Zone</h3>
+        <div class="settings-list">
+          <div class="setting-row danger-row">
+            <div class="setting-info">
+              <span class="setting-name">Reset All Progress</span>
+              <span class="setting-desc">Erase all stats, XP, coins, and match history</span>
+            </div>
+            <button class="danger-btn" id="btn-reset-progress">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-footer">
+        <p class="settings-version">Sudoku v3.0 — Made with ❤️</p>
+      </div>
+    </div>
+
+    <!-- ═══════════ BOTTOM NAV BAR ═══════════ -->
+    <nav class="bottom-nav" id="bottom-nav">
+      <button class="nav-btn active" data-screen="menu" id="nav-play"><span class="nav-icon">🎮</span><span
+          class="nav-label">Play</span></button>
+      <button class="nav-btn" data-screen="battle" id="nav-battle"><span class="nav-icon">⚔️</span><span
+          class="nav-label">Battle</span></button>
+      <button class="nav-btn" data-screen="shop" id="nav-shop"><span class="nav-icon">🛍️</span><span
+          class="nav-label">Shop</span></button>
+      <button class="nav-btn" data-screen="profile" id="nav-profile"><span class="nav-icon">👤</span><span
+          class="nav-label">Profile</span></button>
+    </nav>
+  </div>
+
+  <!-- ═══════════ OVERLAYS ═══════════ -->
+  <div id="overlay">
+    <div class="overlay-content" id="overlay-win">
+      <span class="overlay-emoji">🎉</span>
+      <h2 class="overlay-title">Puzzle Complete!</h2>
+      <p class="overlay-subtitle">Excellent work, you solved it!</p>
+      <div class="overlay-stats">
+        <div class="stat"><span class="stat-value" id="win-time">00:00</span><span class="stat-label">Time</span></div>
+        <div class="stat"><span class="stat-value" id="win-mistakes">0</span><span class="stat-label">Mistakes</span>
+        </div>
+        <div class="stat"><span class="stat-value" id="win-difficulty">Medium</span><span
+            class="stat-label">Difficulty</span></div>
+      </div>
+      <div class="reward-bar">
+        <div class="reward-item"><span class="reward-icon">⭐</span><span class="reward-value" id="win-xp">+0 XP</span>
+        </div>
+        <div class="reward-item"><span class="reward-icon">🪙</span><span class="reward-value" id="win-coins">+0</span>
+        </div>
+      </div>
+      <div id="win-quests-completed" class="quest-completed-list" style="display:none"></div>
+      <div id="win-level-up" class="level-up-banner" style="display:none"><span>🎊 Level Up!</span><span
+          id="win-new-level" class="new-level-num"></span></div>
+      <button class="primary-btn" id="btn-play-again" style="margin-bottom:8px">Play Again</button>
+      <button class="secondary-btn" id="btn-challenge">🔗 Challenge a Friend</button>
+    </div>
+    <div class="overlay-content" id="overlay-lose">
+      <span class="overlay-emoji">😔</span>
+      <h2 class="overlay-title">Game Over</h2>
+      <p class="overlay-subtitle">You've made 3 mistakes. Better luck next time!</p>
+      <button class="primary-btn" id="btn-play-again-lose" style="margin-top: 20px;">Try Again</button>
+    </div>
+    <div class="overlay-content" id="overlay-pause">
+      <span class="overlay-emoji">⏸️</span>
+      <h2 class="overlay-title">Paused</h2>
+      <p class="overlay-subtitle">Take a break, the board is hidden.</p>
+      <button class="primary-btn" id="btn-resume" style="margin-top: 20px;">Resume</button>
+    </div>
+    <!-- Reset Confirmation -->
+    <div class="overlay-content" id="overlay-reset-confirm">
+      <span class="overlay-emoji">⚠️</span>
+      <h2 class="overlay-title">Reset Everything?</h2>
+      <p class="overlay-subtitle">This will erase ALL your progress: XP, coins, stats, match history, and themes. This
+        cannot be undone.</p>
+      <button class="danger-btn-full" id="btn-confirm-reset" style="margin-top: 16px;">Yes, Reset Everything</button>
+      <button class="secondary-btn" id="btn-cancel-reset" style="margin-top: 8px;">Cancel</button>
+    </div>
+    <!-- Battle Result -->
+    <div class="overlay-content" id="overlay-battle-result">
+      <span class="overlay-emoji" id="battle-result-emoji">⚔️</span>
+      <h2 class="overlay-title" id="battle-result-title">Battle Result</h2>
+      <p class="overlay-subtitle" id="battle-result-subtitle"></p>
+      <div class="overlay-stats">
+        <div class="stat"><span class="stat-value" id="battle-result-elo-change">+0</span><span
+            class="stat-label">ELO</span></div>
+        <div class="stat"><span class="stat-value" id="battle-result-new-elo">1000</span><span
+            class="stat-label">Rating</span></div>
+        <div class="stat"><span class="stat-value" id="battle-result-league">🥉</span><span
+            class="stat-label">League</span></div>
+      </div>
+      <button class="primary-btn" id="btn-battle-done" style="margin-top: 16px;">Continue</button>
+    </div>
+    <!-- Matchmaking -->
+    <div class="overlay-content" id="overlay-matchmaking">
+      <div class="matchmaking-spinner"></div>
+      <h2 class="overlay-title">Finding Opponent...</h2>
+      <p class="overlay-subtitle" id="matchmaking-text">Searching for a worthy challenger</p>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="xp-toast" class="xp-toast"><span id="xp-toast-text">+100 XP</span></div>
+
+  <!-- Copied toast -->
+  <div id="copied-toast" class="xp-toast"><span>✅ Challenge link copied!</span></div>
+
+  <!-- Hint toast -->
+  <div id="hint-toast" class="xp-toast hint-toast"><span id="hint-toast-text">🤖 Opponent gained a hint!</span></div>
+
+  <div id="confetti"></div>
+
+  <script src="js/sudoku.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/pvp.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/emote.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+
+</html>
