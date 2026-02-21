@@ -114,26 +114,4 @@ Weekly leaderboards divided into Leagues (Bronze, Silver, Gold, Diamond). The to
 - **Anti-Cheat System:** The server must validate completion times and inputs to prevent automated solver scripts from ruining the multiplayer and leaderboard integrity.
 - **Data Protection:** User passwords and data must be encrypted in transit (HTTPS) and at rest.
 
----
 
-## 5. Suggested Technology Stack
-
-| Layer | Technology |
-|---|---|
-| **Frontend** | React.js or Vue.js; HTML5 Canvas or SVG for board rendering |
-| **Backend** | Node.js with Express or Python with FastAPI |
-| **Database** | PostgreSQL (user data, stats, relations) + Redis (real-time matchmaking, leaderboards) |
-| **Real-Time Communication** | WebSockets (Socket.io) for live PvP battles and friend notifications |
-
----
-
-## 6. Development Roadmap
-
-### Phase 1 — MVP
-Build the core grid, puzzle generator, standard difficulties, and basic UI *(the Sudoku.com clone phase)*.
-
-### Phase 2 — Habit Building
-Integrate user accounts, XP system, daily streaks, and the cosmetic shop.
-
-### Phase 3 — Community
-Launch PvP battles, leagues, and friend challenges.
