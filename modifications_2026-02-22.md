@@ -1,6 +1,6 @@
-# Sudoku App Modifications (2026-02-23)
+# Sudoku App Modifications (2026-02-22)
 
-This document outlines the updates shipped to the Sudoku application on February 23rd, 2026. It is designed to be fully comprehensible for non-technical stakeholders (Product Managers, Designers, Users) while also providing the foundational details necessary for Developers.
+This document outlines the updates to the Sudoku application up to February 22rd, 2026. It is designed to be fully comprehensible for non-technical stakeholders (Product Managers, Designers, Users) while also providing the foundational details necessary for Developers.
 
 ---
 
@@ -88,3 +88,4 @@ We wanted a place for players to check back in on matches they walked away from:
 ### Developer View
 - **URL Parameter Repair:** Fixed `onChallengeClick` attempting to read an `undefined` variable to generate links. Correctly pointed it to the actively generated `st.seed`.
 - **Race Condition Fix:** Repaired the loading logic pipeline. The browser was painting the initial UI cycle physically faster than the engine could read the URL parameters to populate `st.challengeTime`. Swapped initialization orders and forced a repainting call `updateInfoBar()` to ensure the Challenge Timer label visually exists the millisecond the screen renders.
+
